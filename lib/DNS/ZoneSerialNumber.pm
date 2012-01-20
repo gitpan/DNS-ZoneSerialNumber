@@ -33,7 +33,7 @@ use constant SERIAL_HALF   => 2**( SERIAL_BITS - 1 );
 use constant INCREMENT_MAX => ( 2**( SERIAL_BITS - 1 ) ) - 1;
 
 our @ISA     = qw();
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -103,12 +103,12 @@ sub __check_valid_serial {
 }
 
 sub __check_valid_increment_and_croak {
-    my ( $serial, $max ) = @_;
+    my ( $serial ) = @_;
     if (   ( !defined $serial )
         || ( $serial !~ /^\d+$/ )
-        || ( $serial > $max ) )
+        || ( $serial > INCREMENT_MAX ) )
     {
-        croak "Invalid amount (must be numeric, positive, and <= $max)";
+        croak 'Invalid amount (must be numeric, positive, and <= ' . INCREMENT_MAX . ')';
     }
 }
 
@@ -119,7 +119,7 @@ sub _compare {
     if ( ref $i2 eq 'DNS::ZoneSerialNumber' ) {
         $i2 = $i2->serial;
     }
-    __check_valid_serial_and_croak( $i2, SERIAL_MAX );
+    __check_valid_serial_and_croak( $i2 );
 
     if ( $swapped ) {
         $i1 = $i2;
@@ -160,11 +160,12 @@ sub _copy {
 
 Accepts a single parameter, the serial number to test for validity.
 
-Returns true or false based on whether or not the specified serial number
-represents a valid serial number.
+Returns true or false depending representing whether or not the specified
+serial number represents a valid serial number. Valid serial numbers are
+positive integers between 1 and SERIAL_MAX (inclusive). See L<CONSTANTS> for
+details.
 
-Note: This method may be called statically or on a DNS::ZoneSerialNumber
-object.
+Note: This method may be called statically or as an instance method.
 
 =cut
 
@@ -183,8 +184,8 @@ sub valid {
 
 Accepts no parameters. Returns the represented serial number as a Perl scalar.
 
-Note: A DNS::ZoneSerialNumber object automatically stringifies (and
-numricifies) to the serial number.
+Note: In string or numeric context, a DNS::ZoneSerialNumber object will return
+an appropriate representation of its serial number automatically.
 
 =cut
 
@@ -196,7 +197,7 @@ sub serial {
 =head2 set
 
 Accepts a single parameter, the new serial number. Returns the
-DNS::ZoneSerialNumber with the updated serial number.
+DNS::ZoneSerialNumber object with the updated serial number.
 
 Sets the serial number represented by the object to the specified serial
 number. If the specified serial number is invalid the method will L<croak>.
@@ -231,7 +232,7 @@ sub set_from_date {
     my ( $self, $revisions ) = @_;
     if ( !defined $revisions ) { $revisions = 0; }
     if ( $revisions !~ /^\d+$/ || $revisions > 99 ) {
-        croak "Revision count invalid";
+        croak 'Revision count invalid';
     }
     my @time = localtime();
     my $new_serial = sprintf( '%04d%02d%02d%02d', $time[5] + 1900, $time[4] + 1, $time[3], $revisions );
@@ -371,7 +372,7 @@ sub next {
     if ( ref $amount eq 'DNS::ZoneSerialNumber' ) {
         $amount = $amount->serial;
     }
-    __check_valid_increment_and_croak( $amount, INCREMENT_MAX );
+    __check_valid_increment_and_croak( $amount );
 
     $s += $amount;
     if ( $s > SERIAL_MAX ) {
@@ -407,7 +408,7 @@ sub previous {
     if ( ref $amount eq 'DNS::ZoneSerialNumber' ) {
         $amount = $amount->serial;
     }
-    __check_valid_increment_and_croak( $amount, INCREMENT_MAX );
+    __check_valid_increment_and_croak( $amount );
 
     if ( $swapped ) {
         $s      = $amount;
@@ -607,7 +608,7 @@ additive and subtractive calculations. For example, if a DNS::ZoneSerialNumber
 object representing the serial number SERIAL_MAX is then incremented by 1, the
 new serial number will be set to 1 rather than 0.
 
-Comparisons will still take serial number into account as expected.
+Comparisons will still take serial number 0 into account as expected.
 
 =head1 INVALID COMPARISONS
 
@@ -630,7 +631,11 @@ optional) in a future version.
 
 =head1 CHANGES
 
-=head2 1.0 - 20120118, jeagle
+=head2 1.01 - 20120120, jeagle
+
+Minor documentation updates.
+
+=head2 1.00 - 20120118, jeagle
 
 Initial release to CPAN.
 

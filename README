@@ -26,22 +26,23 @@ METHODS
   valid
     Accepts a single parameter, the serial number to test for validity.
 
-    Returns true or false based on whether or not the specified serial
-    number represents a valid serial number.
+    Returns true or false depending representing whether or not the
+    specified serial number represents a valid serial number. Valid serial
+    numbers are positive integers between 1 and SERIAL_MAX (inclusive). See
+    CONSTANTS for details.
 
-    Note: This method may be called statically or on a DNS::ZoneSerialNumber
-    object.
+    Note: This method may be called statically or as an instance method.
 
   serial
     Accepts no parameters. Returns the represented serial number as a Perl
     scalar.
 
-    Note: A DNS::ZoneSerialNumber object automatically stringifies (and
-    numricifies) to the serial number.
+    Note: In string or numeric context, a DNS::ZoneSerialNumber object will
+    return an appropriate representation of its serial number automatically.
 
   set
     Accepts a single parameter, the new serial number. Returns the
-    DNS::ZoneSerialNumber with the updated serial number.
+    DNS::ZoneSerialNumber object with the updated serial number.
 
     Sets the serial number represented by the object to the specified serial
     number. If the specified serial number is invalid the method will croak.
@@ -240,7 +241,7 @@ SERIAL NUMBER 0
     is then incremented by 1, the new serial number will be set to 1 rather
     than 0.
 
-    Comparisons will still take serial number into account as expected.
+    Comparisons will still take serial number 0 into account as expected.
 
 INVALID COMPARISONS
     The serial number logic provided by RFC 1982 defines two serial numbers
@@ -260,7 +261,10 @@ OPERATOR OVERLOADING
     be removed (or made optional) in a future version.
 
 CHANGES
-  1.0 - 20120118, jeagle
+  1.01 - 20120120, jeagle
+    Minor documentation updates.
+
+  1.00 - 20120118, jeagle
     Initial release to CPAN.
 
 SEE ALSO
